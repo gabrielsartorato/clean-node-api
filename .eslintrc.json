@@ -6,6 +6,8 @@
   "rules": {
     "@typescript-eslint/no-redeclare": "off",
     "@typescript-eslint/semi": "off",
-    "@typescript-eslint/strict-boolean-expressions": "off"
+    "@typescript-eslint/strict-boolean-expressions": "off",
+    "camelcase": "off",
+    "@typescript-eslint/naming-convention": "off"
   }
 }

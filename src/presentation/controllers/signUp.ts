@@ -19,11 +19,13 @@ export class SignController implements Controller {
         }
       }
 
-      if (httpRequest.body.password !== httpRequest.body.password_confirmation) {
+      const { email, password, password_confirmation } = httpRequest.body
+
+      if (password !== password_confirmation) {
         return badRequest(new InvalidParamError('password_confirmation'));
       }
 
-      const isValid = this.emailValidator.isValid(httpRequest.body.email);
+      const isValid = this.emailValidator.isValid(email);
 
       if (!isValid) {
         return badRequest(new InvalidParamError('email'));
