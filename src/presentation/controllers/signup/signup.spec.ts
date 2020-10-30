@@ -1,38 +1,47 @@
-import { MissingParamError, InvalidParamError, ServerError } from '../../errors';
+import {
+  MissingParamError,
+  InvalidParamError,
+  ServerError,
+} from '../../errors';
 import { SignController } from './signup';
-import { EmailValidator, AccountModel, AddAccount, AddAccountModel } from './signup-protocols';
+import {
+  EmailValidator,
+  AccountModel,
+  AddAccount,
+  AddAccountModel,
+} from './signup-protocols';
 
 const makeEmailValidator = (): EmailValidator => {
   class EmailValidatorStub implements EmailValidator {
-    isValid (email: string): boolean {
+    isValid(email: string): boolean {
       return true;
     }
   }
 
   return new EmailValidatorStub();
-}
+};
 
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
-    async add (account: AddAccountModel): Promise<AccountModel> {
+    async add(account: AddAccountModel): Promise<AccountModel> {
       const fakeAccount = {
         id: 'valid_id',
         name: 'valid_name',
         email: 'valid_email@email.com',
-        password: 'valid_password'
-      }
+        password: 'valid_password',
+      };
 
-      return await new Promise(resolve => resolve(fakeAccount));
+      return await new Promise((resolve) => resolve(fakeAccount));
     }
   }
 
   return new AddAccountStub();
-}
+};
 
 interface SutTypes {
-  sut: SignController
-  emailValidatorStub: EmailValidator
-  addAccountStub: AddAccount
+  sut: SignController;
+  emailValidatorStub: EmailValidator;
+  addAccountStub: AddAccount;
 }
 
 const makeSut = (): SutTypes => {
@@ -43,9 +52,9 @@ const makeSut = (): SutTypes => {
   return {
     sut,
     emailValidatorStub,
-    addAccountStub
-  }
-}
+    addAccountStub,
+  };
+};
 
 describe('SignUp Controller', () => {
   it('should return 400 if no name is provided', async () => {
@@ -54,9 +63,9 @@ describe('SignUp Controller', () => {
       body: {
         email: 'any_email@mail.com',
         password: 'any_password',
-        password_confirmation: 'any_password'
-      }
-    }
+        password_confirmation: 'any_password',
+      },
+    };
 
     const httpResponse = await await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
@@ -70,9 +79,9 @@ describe('SignUp Controller', () => {
       body: {
         name: 'any_name',
         password: 'any_password',
-        password_confirmation: 'any_password'
-      }
-    }
+        password_confirmation: 'any_password',
+      },
+    };
 
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
@@ -86,9 +95,9 @@ describe('SignUp Controller', () => {
       body: {
         name: 'any_name',
         email: 'invalid_email@mail.com',
-        password_confirmation: 'any_password'
-      }
-    }
+        password_confirmation: 'any_password',
+      },
+    };
 
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
@@ -103,13 +112,15 @@ describe('SignUp Controller', () => {
         name: 'any_name',
         email: 'invalid_email@mail.com',
         password: 'any_password',
-        password_confirmation: 'invalid_password'
-      }
-    }
+        password_confirmation: 'invalid_password',
+      },
+    };
 
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new InvalidParamError('password_confirmation'));
+    expect(httpResponse.body).toEqual(
+      new InvalidParamError('password_confirmation'),
+    );
   });
 
   it('should return 400 if no password confirmation is provided', async () => {
@@ -119,13 +130,15 @@ describe('SignUp Controller', () => {
       body: {
         email: 'any_email@mail.com',
         name: 'any_name',
-        password: 'any_password'
-      }
-    }
+        password: 'any_password',
+      },
+    };
 
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new MissingParamError('password_confirmation'));
+    expect(httpResponse.body).toEqual(
+      new MissingParamError('password_confirmation'),
+    );
   });
 
   it('should return 400 if is an invalid email is provided', async () => {
@@ -137,9 +150,9 @@ describe('SignUp Controller', () => {
         email: 'any_email@mail.com',
         name: 'any_name',
         password: 'any_password',
-        password_confirmation: 'any_password'
-      }
-    }
+        password_confirmation: 'any_password',
+      },
+    };
 
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(400);
@@ -148,16 +161,16 @@ describe('SignUp Controller', () => {
 
   it('should call EmailValidator with correct email', async () => {
     const { sut, emailValidatorStub } = makeSut();
-    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
+    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid');
 
     const httpRequest = {
       body: {
         name: 'any_name',
         email: 'any_email@mail.com',
         password: 'any_password',
-        password_confirmation: 'any_password'
-      }
-    }
+        password_confirmation: 'any_password',
+      },
+    };
 
     await sut.handle(httpRequest);
     expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com');
@@ -165,22 +178,22 @@ describe('SignUp Controller', () => {
 
   it('should call AddAccount with correct values', async () => {
     const { sut, addAccountStub } = makeSut();
-    const addSpy = jest.spyOn(addAccountStub, 'add')
+    const addSpy = jest.spyOn(addAccountStub, 'add');
 
     const httpRequest = {
       body: {
         name: 'any_name',
         email: 'any_email@mail.com',
         password: 'any_password',
-        password_confirmation: 'any_password'
-      }
-    }
+        password_confirmation: 'any_password',
+      },
+    };
 
     await sut.handle(httpRequest);
     expect(addSpy).toHaveBeenCalledWith({
       name: 'any_name',
       email: 'any_email@mail.com',
-      password: 'any_password'
+      password: 'any_password',
     });
   });
 
@@ -189,16 +202,16 @@ describe('SignUp Controller', () => {
 
     jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(() => {
       throw new Error();
-    })
+    });
 
     const httpRequest = {
       body: {
         name: 'any_name',
         email: 'any_email@mail.com',
         password: 'any_password',
-        password_confirmation: 'any_password'
-      }
-    }
+        password_confirmation: 'any_password',
+      },
+    };
 
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(500);
@@ -210,16 +223,16 @@ describe('SignUp Controller', () => {
 
     jest.spyOn(addAccountStub, 'add').mockImplementationOnce(async () => {
       return new Promise((resolve, reject) => reject(new Error()));
-    })
+    });
 
     const httpRequest = {
       body: {
         name: 'any_name',
         email: 'any_email@mail.com',
         password: 'any_password',
-        password_confirmation: 'any_password'
-      }
-    }
+        password_confirmation: 'any_password',
+      },
+    };
 
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(500);
@@ -234,9 +247,9 @@ describe('SignUp Controller', () => {
         name: 'valid_name',
         email: 'valid_email@email.com',
         password: 'valid_password',
-        password_confirmation: 'valid_password'
-      }
-    }
+        password_confirmation: 'valid_password',
+      },
+    };
 
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse.statusCode).toBe(200);
@@ -244,7 +257,7 @@ describe('SignUp Controller', () => {
       id: 'valid_id',
       name: 'valid_name',
       email: 'valid_email@email.com',
-      password: 'valid_password'
+      password: 'valid_password',
     });
   });
 });
