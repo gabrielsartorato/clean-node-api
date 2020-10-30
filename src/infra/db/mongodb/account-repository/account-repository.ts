@@ -9,7 +9,9 @@ export class AccountMongoRepository implements AddAccountRepository {
     const result = await accountCollection.insertOne({ name, email, password });
 
     const account = result.ops[0];
-    const { _id, accountWithoutId } = account;
+    const { _id, ...accountWithoutId } = account;
+
+    console.log(accountWithoutId);
 
     return Object.assign({}, accountWithoutId, { id: _id });
   }
