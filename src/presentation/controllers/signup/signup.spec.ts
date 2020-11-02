@@ -3,7 +3,7 @@ import {
   InvalidParamError,
   ServerError,
 } from '../../errors';
-import { SignController } from './signup';
+import { SignUpController } from './signup';
 import {
   EmailValidator,
   AccountModel,
@@ -39,7 +39,7 @@ const makeAddAccount = (): AddAccount => {
 };
 
 interface SutTypes {
-  sut: SignController;
+  sut: SignUpController;
   emailValidatorStub: EmailValidator;
   addAccountStub: AddAccount;
 }
@@ -47,7 +47,7 @@ interface SutTypes {
 const makeSut = (): SutTypes => {
   const emailValidatorStub = makeEmailValidator();
   const addAccountStub = makeAddAccount();
-  const sut = new SignController(emailValidatorStub, addAccountStub);
+  const sut = new SignUpController(emailValidatorStub, addAccountStub);
 
   return {
     sut,
