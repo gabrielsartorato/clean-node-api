@@ -20,6 +20,7 @@ export class LogControllerDecorator implements Controller {
     if (httpResponse.statusCode === 500) {
       await this.logErrorRepository.log(httpResponse.body.stack);
     }
+
     return httpResponse;
   }
 }
